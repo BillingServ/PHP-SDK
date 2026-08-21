@@ -127,6 +127,20 @@ final class SdkTest extends TestCase
         self::assertSame(Client::DEFAULT_BASE_URI.'/meter/3/get/9', $request['url']);
     }
 
+    public function test_currencies_list_hits_currency_endpoint(): void
+    {
+        $this->runWithResponses([[
+            'status' => 200,
+            'body' => '{"success":true,"currencies":[{"id":4,"name":"British Pounds","short_name":"GBP","symbol":"&pound;","conversion":1}]}',
+        ]]);
+
+        $result = $this->sdk->currencies->list();
+
+        self::assertTrue($result['success']);
+        self::assertSame('GBP', $result['currencies'][0]['short_name']);
+        self::assertSame(Client::DEFAULT_BASE_URI.'/currency/lists', $this->transport->requests[0]['url']);
+    }
+
     /**
      * @param array<int, array{status: int, body?: string, headers?: array<string,string>}>|null $responses
      */

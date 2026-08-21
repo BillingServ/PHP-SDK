@@ -7,6 +7,7 @@ namespace BillingServ;
 use BillingServ\Resource\Checkout;
 use BillingServ\Resource\Counties;
 use BillingServ\Resource\Countries;
+use BillingServ\Resource\Currencies;
 use BillingServ\Resource\Customers;
 use BillingServ\Resource\Domains;
 use BillingServ\Resource\Invoices;
@@ -35,6 +36,7 @@ final class BillingServ
     public readonly Domains $domains;
     public readonly Countries $countries;
     public readonly Counties $counties;
+    public readonly Currencies $currencies;
     public readonly Customers $customers;
     public readonly Invoices $invoices;
     public readonly Orders $orders;
@@ -64,6 +66,7 @@ final class BillingServ
             'domains' => Domains::class,
             'countries' => Countries::class,
             'counties' => Counties::class,
+            'currencies' => Currencies::class,
             'customers' => Customers::class,
             'invoices' => Invoices::class,
             'orders' => Orders::class,
