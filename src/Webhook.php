@@ -13,9 +13,18 @@ namespace BillingServ;
  */
 final class Webhook
 {
-    /** Verify the raw (unparsed) payload against its BillingServ-Signature header. */
+    /**
+     * Verify the raw (unparsed) payload against its BillingServ-Signature header.
+     *
+     * The timestamp freshness check is always enforced; $tolerance must be at
+     * least 1 second so replay protection cannot be disabled by the caller.
+     */
     public static function verify(string $payload, string $signatureHeader, string $secret, int $tolerance = 300): bool
     {
+        if ($tolerance < 1) {
+            throw new \InvalidArgumentException('Tolerance must be at least 1 second.');
+        }
+
         $timestamp = null;
         $signatures = [];
 
@@ -35,7 +44,7 @@ final class Webhook
             return false;
         }
 
-        if ($tolerance > 0 && abs(time() - $timestamp) > $tolerance) {
+        if (abs(time() - $timestamp) > $tolerance) {
             return false;
         }
 

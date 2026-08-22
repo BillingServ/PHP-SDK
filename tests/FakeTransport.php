@@ -37,6 +37,6 @@ final class FakeTransport
 
     public static function client(callable $transport): Client
     {
-        return new Client('test-api-key', ['transport' => $transport]);
+        return new Client('test-api-key', 'https://sdk.test', ['transport' => $transport]);
     }
 }

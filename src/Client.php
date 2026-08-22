@@ -21,18 +21,33 @@ use BillingServ\Exception\ValidationException;
 final class Client
 {
     public const VERSION = '1.0.0';
-    public const DEFAULT_BASE_URI = 'https://demo.onlinebillingform.com/api/v2';
+    public const DEFAULT_BASE_PATH = '/api/v2';
 
     /** @var callable(array): array{0: int, 1: array<string, string>, 2: string}|null */
     private $transport;
 
+    private readonly string $origin;
+
     /**
-     * @param array{base_uri?: string, timeout?: int, transport?: callable} $options
+     * @param array{timeout?: int, transport?: callable} $options
      */
     public function __construct(
         private readonly string $apiKey,
+        string $baseUri,
         private readonly array $options = [],
     ) {
+        $parts = parse_url($baseUri);
+
+        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+        if (!in_array($scheme, ['http', 'https'], true)) {
+            throw new \InvalidArgumentException('baseUri must include an http:// or https:// scheme.');
+        }
+
+        if (isset($parts['path']) && $parts['path'] !== '/') {
+            throw new \InvalidArgumentException('baseUri must be a bare origin (scheme://host); '.self::DEFAULT_BASE_PATH.' is appended automatically.');
+        }
+
+        $this->origin = rtrim($baseUri, '/');
         $this->transport = $options['transport'] ?? null;
     }
 
@@ -48,6 +63,10 @@ final class Client
      */
     public function post(string $path, array $body = [], ?string $idempotencyKey = null): array
     {
+        if ($idempotencyKey !== null && preg_match('/^[A-Za-z0-9._-]{1,100}$/', $idempotencyKey) !== 1) {
+            throw new \InvalidArgumentException('Invalid Idempotency-Key: must match ^[A-Za-z0-9._-]{1,100}$.');
+        }
+
         return $this->request('POST', $path, ['json' => $body, 'idempotency_key' => $idempotencyKey]);
     }
 
@@ -105,7 +124,7 @@ final class Client
 
     private function baseUri(): string
     {
-        return $this->options['base_uri'] ?? self::DEFAULT_BASE_URI;
+        return $this->origin.self::DEFAULT_BASE_PATH;
     }
 
     /**

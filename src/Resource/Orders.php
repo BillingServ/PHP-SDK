@@ -108,14 +108,19 @@ final class Orders extends Resource
         ]);
     }
 
-    /** GET /order/check-fraud */
+    /**
+     * POST /order/check-fraud
+     *
+     * The card number, when provided, is sent in the JSON request body so it
+     * never appears in the URL or in server/proxy access logs.
+     */
     public function checkFraud(int $orderId, ?string $cardNumber = null): array
     {
-        $query = ['order_id' => $orderId];
+        $body = ['order_id' => $orderId];
         if ($cardNumber !== null) {
-            $query['paymentMethod.number'] = $cardNumber;
+            $body['paymentMethod'] = ['number' => $cardNumber];
         }
 
-        return $this->client->get('/order/check-fraud', $query);
+        return $this->client->post('/order/check-fraud', $body);
     }
 }

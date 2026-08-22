@@ -20,9 +20,12 @@ composer require billingserv/php-sdk
 ```php
 use BillingServ\BillingServ;
 
-$billingserv = new BillingServ('your-bearer-api-key');
-// Custom install: new BillingServ($key, ['base_uri' => 'https://your-install.com/api/v2', 'timeout' => 15]);
+$billingserv = new BillingServ('your-bearer-api-key', 'https://yourdomain.com');
+// Optional third argument: new BillingServ($key, $baseUri, ['timeout' => 15]);
 ```
+
+The base URI is your BillingServ install origin — the `/api/v2` API path is
+appended automatically. It must include the `http://` or `https://` scheme.
 
 ### Configuration (.env)
 
@@ -31,7 +34,7 @@ them is up to you. Our examples load them from a `.env` file in your project:
 
 ```dotenv
 BILLINGSERV_API_KEY=your-merchant-bearer-token
-BILLINGSERV_BASE_URI=https://yourdomain.com/api/v2
+BILLINGSERV_BASE_URI=https://yourdomain.com
 APP_URL=https://yourdomain.com
 BILLINGSERV_WEBHOOK_SECRET=your-webhook-signing-secret
 ```
@@ -39,7 +42,7 @@ BILLINGSERV_WEBHOOK_SECRET=your-webhook-signing-secret
 | Key | Purpose |
 | --- | --- |
 | `BILLINGSERV_API_KEY` | Your **merchant** bearer token from the API Information page. Required |
-| `BILLINGSERV_BASE_URI` | Your BillingServ install, ending in `/api/v2`. Defaults to the public demo server when omitted from the constructor |
+| `BILLINGSERV_BASE_URI` | Origin of your BillingServ install (scheme + host only, e.g. `https://yourdomain.com`). The `/api/v2` API path is appended automatically. Required |
 | `APP_URL` | Public URL of your integration, used as the hosted checkout return address. Set it explicitly behind proxies or CDNs where host detection cannot be trusted |
 | `BILLINGSERV_WEBHOOK_SECRET` | Signing secret used to verify `BillingServ-Signature` headers on inbound webhooks |
 
@@ -169,6 +172,10 @@ if (!Webhook::verify($payload, $_SERVER['HTTP_BILLINGSERV_SIGNATURE'] ?? '', $si
 $event = Webhook::parse($payload); // {id, type, version, created_at, data}
 // enqueue/persist by $event['id'] (deliveries may retry), then respond within 10s
 ```
+
+`verify()` enforces a timestamp freshness window (default 300 seconds; pass a
+larger `$tolerance` to widen it). The freshness check cannot be disabled —
+`$tolerance` must be at least 1 second.
 
 ## Testing
 

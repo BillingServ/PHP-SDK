@@ -41,13 +41,24 @@ final class WebhookTest extends TestCase
         self::assertFalse(Webhook::verify($payload, $signature, self::SECRET));
     }
 
-    public function test_verify_allows_stale_timestamp_when_tolerance_disabled(): void
+    public function test_verify_rejects_stale_timestamp_even_with_zero_tolerance(): void
     {
         $payload = '{}';
         $timestamp = time() - 3600;
         $signature = 't='.$timestamp.',v1='.$this->sign($timestamp, $payload);
 
-        self::assertTrue(Webhook::verify($payload, $signature, self::SECRET, 0));
+        $this->expectException(\InvalidArgumentException::class);
+        Webhook::verify($payload, $signature, self::SECRET, 0);
+    }
+
+    public function test_verify_rejects_negative_tolerance(): void
+    {
+        $payload = '{}';
+        $timestamp = time();
+        $signature = 't='.$timestamp.',v1='.$this->sign($timestamp, $payload);
+
+        $this->expectException(\InvalidArgumentException::class);
+        Webhook::verify($payload, $signature, self::SECRET, -5);
     }
 
     public function test_verify_rejects_malformed_headers(): void

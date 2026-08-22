@@ -27,7 +27,7 @@ use BillingServ\Resource\Vpn;
 /**
  * Entry point for the BillingServ v2 API SDK.
  *
- *     $billingserv = new \BillingServ\BillingServ('your-api-key');
+ *     $billingserv = new \BillingServ\BillingServ('your-api-key', 'https://your-install.com');
  *     $customer = $billingserv->customers->get(1);
  */
 final class BillingServ
@@ -55,11 +55,12 @@ final class BillingServ
     private readonly Client $client;
 
     /**
-     * @param array{base_uri?: string, timeout?: int, transport?: callable} $options
+     * @param string $baseUri Your BillingServ install origin, e.g. https://your-install.com — the /api/v2 path is appended automatically.
+     * @param array{timeout?: int, transport?: callable} $options
      */
-    public function __construct(string $apiKey, array $options = [])
+    public function __construct(string $apiKey, string $baseUri, array $options = [])
     {
-        $this->client = new Client($apiKey, $options);
+        $this->client = new Client($apiKey, $baseUri, $options);
 
         foreach ([
             'checkout' => Checkout::class,
