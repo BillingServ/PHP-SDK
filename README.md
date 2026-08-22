@@ -24,6 +24,29 @@ $billingserv = new BillingServ('your-bearer-api-key');
 // Custom install: new BillingServ($key, ['base_uri' => 'https://your-install.com/api/v2', 'timeout' => 15]);
 ```
 
+### Configuration (.env)
+
+The SDK itself takes your key and base URL as constructor arguments. The bundled
+demo site (`demo/`) reads them from a `.env` file instead: copy `demo/.env.example`
+to `demo/.env` and fill in:
+
+| Key | Required | Purpose |
+| --- | --- | --- |
+| `BILLINGSERV_API_KEY` | Yes | Your **merchant** bearer token from the API Information page. Powers packages, checkout, currencies, statuses and the account page's order/invoice lists |
+| `BILLINGSERV_BASE_URI` | Yes | Your install, e.g. `https://yourdomain.com/api/v2`. Defaults to the public demo server |
+| `APP_URL` | Recommended | Public URL of the demo folder, used as the checkout return address. Detected automatically if empty; set it explicitly behind proxies/CDNs |
+| `BILLINGSERV_WEBHOOK_SECRET` | For webhooks | Signing secret for `webhook.php`. Without it, webhook testing needs `?secret=` in the URL instead |
+
+Notes:
+
+- The merchant key must have permission for the endpoints the site uses:
+  packages, package options, checkout, countries, counties, currencies,
+  order/invoice statuses and the order/invoice lists.
+- Customers do **not** need an API key. They sign up or log in with their email
+  and password (`/customer/check`); their account page pulls their orders and
+  invoices through your merchant key, filtered to their customer ID.
+
+
 ### Customers
 
 ```php
