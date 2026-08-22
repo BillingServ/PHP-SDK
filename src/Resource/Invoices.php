@@ -7,7 +7,9 @@ namespace BillingServ\Resource;
 /** Invoices and quotes. */
 final class Invoices extends Resource
 {
-    /** GET /invoice/lists. Status: UNPAID, PAID, OVERDUE, REFUNDED, CANCELED, PENDING or ALL. */
+    /**
+     * GET /invoice/lists. Status: UNPAID, PAID, OVERDUE, REFUNDED, CANCELED, PENDING or ALL.
+     */
     public function list(string $status, ?int $perPage = null): array
     {
         $query = ['status' => $status];
@@ -16,6 +18,19 @@ final class Invoices extends Resource
         }
 
         return $this->client->get('/invoice/lists', $query);
+    }
+
+    /**
+     * GET /invoice/statuses
+     *
+     * Definitions mapping the numeric status on invoice records to their API key
+     * and human label, e.g. {status: "0", status_key: "UNPAID", status_label: "Unpaid"}.
+     *
+     * @return array{success: bool, statuses?: array<int, array{status: string, status_key: string, status_label: string, description: string}>}
+     */
+    public function statuses(): array
+    {
+        return $this->client->get('/invoice/statuses');
     }
 
     /**

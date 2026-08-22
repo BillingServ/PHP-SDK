@@ -171,6 +171,22 @@ final class SdkTest extends TestCase
         self::assertStringContainsString('"options":{"id":[3],"value":["4 GB"],"amount":[0],"cycle_type":[5]}', (string) $this->transport->requests[0]['body']);
     }
 
+    public function test_order_and_invoice_status_definitions(): void
+    {
+        $this->runWithResponses([
+            ['status' => 200, 'body' => '{"success":true,"statuses":[{"status":"0","status_key":"RECENT","status_label":"Recent","description":"Awaiting processing"}]}'],
+            ['status' => 200, 'body' => '{"success":true,"statuses":[{"status":"1","status_key":"PAID","status_label":"Paid","description":"The invoice has been paid."}]}'],
+        ]);
+
+        $orderStatuses = $this->sdk->orders->statuses();
+        $invoiceStatuses = $this->sdk->invoices->statuses();
+
+        self::assertSame('Recent', $orderStatuses['statuses'][0]['status_label']);
+        self::assertSame(Client::DEFAULT_BASE_URI.'/order/statuses', $this->transport->requests[0]['url']);
+        self::assertSame('Paid', $invoiceStatuses['statuses'][0]['status_label']);
+        self::assertSame(Client::DEFAULT_BASE_URI.'/invoice/statuses', $this->transport->requests[1]['url']);
+    }
+
     /**
      * @param array<int, array{status: int, body?: string, headers?: array<string,string>}>|null $responses
      */

@@ -25,6 +25,19 @@ final class Orders extends Resource
     }
 
     /**
+     * GET /order/statuses
+     *
+     * Definitions mapping the numeric status on order records to their API key
+     * and human label, e.g. {status: "0", status_key: "RECENT", status_label: "Recent"}.
+     *
+     * @return array{success: bool, statuses?: array<int, array{status: string, status_key: string, status_label: string, description: string}>}
+     */
+    public function statuses(): array
+    {
+        return $this->client->get('/order/statuses');
+    }
+
+    /**
      * POST /order/add-order. Supports Idempotency-Key.
      *
      * @param array<string, mixed> $data
