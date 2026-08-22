@@ -113,7 +113,8 @@ final class Client
      */
     private static function toException(int $status, array $headers, array $data, ?string $rawBody): ApiException
     {
-        $errors = $data['errors'] ?? ($rawBody !== null && $rawBody !== '' ? $rawBody : "HTTP {$status}");
+        $errors = $data['errors']
+            ?? ($data['message'] ?? ($rawBody !== null && $rawBody !== '' ? $rawBody : "HTTP {$status}"));
         $errorCode = isset($data['code']) ? (string) $data['code'] : null;
         $requestId = isset($data['request_id']) ? (string) $data['request_id'] : null;
 

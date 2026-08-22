@@ -20,7 +20,11 @@ final class Customers extends Resource
     }
 
     /**
-     * POST /customer/create. Supports Idempotency-Key.
+     * POST /customer/create — supports Idempotency-Key.
+     *
+     * Set `email_verified` to true when your platform has already verified the
+     * address: the customer is marked verified and BillingServ's verification
+     * email is suppressed.
      *
      * @param array<string, mixed> $data
      */
@@ -75,7 +79,13 @@ final class Customers extends Resource
         return $this->client->get('/customer/reset-password', ['email' => $email]);
     }
 
-    /** POST /customer/check. Validates customer credentials (no API key required). */
+    /**
+     * POST /customer/check. Validates customer credentials (no API key required).
+     *
+     * Throws an ApiException with status 403 when the credentials belong to a
+     * non-customer account, or when the email is not yet verified (error code
+     * "email_not_verified" via getErrorCode()).
+     */
     public function checkCredentials(string $username, string $password): array
     {
         return $this->client->post('/customer/check', ['username' => $username, 'password' => $password]);

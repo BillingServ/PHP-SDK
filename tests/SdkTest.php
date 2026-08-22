@@ -108,6 +108,22 @@ final class SdkTest extends TestCase
         $this->sdk->domains->lookup('billingserv');
     }
 
+    public function test_unverified_email_login_maps_to_api_exception_with_code(): void
+    {
+        try {
+            $this->runWithResponses([[
+                'status' => 403,
+                'body' => '{"success":false,"message":"Email address must be verified before accessing the API.","code":"email_not_verified"}',
+            ]]);
+            $this->sdk->customers->checkCredentials('jane@example.com', 'secret');
+            self::fail('ApiException expected');
+        } catch (ApiException $e) {
+            self::assertSame(403, $e->getStatus());
+            self::assertSame('email_not_verified', $e->getErrorCode());
+            self::assertSame('Email address must be verified before accessing the API.', $e->getMessage());
+        }
+    }
+
     public function test_transport_failure_is_wrapped_in_network_exception(): void
     {
         $client = new Client('test-api-key', [
