@@ -141,6 +141,36 @@ final class SdkTest extends TestCase
         self::assertSame(Client::DEFAULT_BASE_URI.'/currency/lists', $this->transport->requests[0]['url']);
     }
 
+    public function test_package_option_get_returns_option_with_values(): void
+    {
+        $this->runWithResponses([[
+            'status' => 200,
+            'body' => '{"success":true,"package_option":{"id":3,"display_name":"RAM","required":1,"type":0,'
+                .'"values":[{"id":30,"option_id":3,"display_name":"4 GB","cycle_type":5,"price":12.5,"fee":1.25}]}}',
+        ]]);
+
+        $result = $this->sdk->packageOptions->get(3);
+
+        self::assertTrue($result['success']);
+        self::assertSame(0, $result['package_option']['type']);          // 0 = select dropdown
+        self::assertSame('4 GB', $result['package_option']['values'][0]['display_name']);
+        self::assertSame('/package/option/get?id=3', str_replace(Client::DEFAULT_BASE_URI, '', $this->transport->requests[0]['url']));
+    }
+
+    public function test_checkout_create_sends_options_payload(): void
+    {
+        $this->runWithResponses(null);
+
+        $this->sdk->checkout->create([
+            'package_id' => 66,
+            'cycle_id' => 87,
+            'callback_url' => 'https://app.test/thanks',
+            'options' => ['id' => [3], 'value' => ['4 GB'], 'amount' => [0], 'cycle_type' => [5]],
+        ]);
+
+        self::assertStringContainsString('"options":{"id":[3],"value":["4 GB"],"amount":[0],"cycle_type":[5]}', (string) $this->transport->requests[0]['body']);
+    }
+
     /**
      * @param array<int, array{status: int, body?: string, headers?: array<string,string>}>|null $responses
      */
