@@ -187,6 +187,25 @@ final class SdkTest extends TestCase
         self::assertSame(Client::DEFAULT_BASE_URI.'/invoice/statuses', $this->transport->requests[1]['url']);
     }
 
+    public function test_country_and_county_search_filters_are_sent(): void
+    {
+        $this->runWithResponses([
+            ['status' => 200, 'body' => '{"success":true,"countries":{"data":[{"id":81,"name":"United Kingdom","iso2":"GB"}]}}'],
+            ['status' => 200, 'body' => '{"success":true,"counties":{"data":[{"id":123,"country_id":81,"name":"Lancashire","code":"LAN"}]}}'],
+        ]);
+
+        $countries = $this->sdk->countries->list(['search' => 'united', 'per_page' => 10]);
+        $counties = $this->sdk->counties->listByCountry(81, ['search' => 'lanc', 'per_page' => 10]);
+
+        self::assertSame('United Kingdom', $countries['countries']['data'][0]['name']);
+        self::assertSame(Client::DEFAULT_BASE_URI.'/country/lists?search=united&per_page=10', $this->transport->requests[0]['url']);
+        self::assertSame('Lancashire', $counties['counties']['data'][0]['name']);
+        self::assertSame(
+            Client::DEFAULT_BASE_URI.'/county/lists-by-country?country_id=81&search=lanc&per_page=10',
+            $this->transport->requests[1]['url']
+        );
+    }
+
     /**
      * @param array<int, array{status: int, body?: string, headers?: array<string,string>}>|null $responses
      */

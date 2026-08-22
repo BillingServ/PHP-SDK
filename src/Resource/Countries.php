@@ -13,9 +13,17 @@ final class Countries extends Resource
         return $this->client->get('/country/get', ['id' => $id]);
     }
 
-    /** GET /country/lists */
-    public function list(): array
+    /**
+     * GET /country/lists
+     *
+     * Filters: search (by country name or ISO-2/ISO-3 code), page,
+     * per_page (defaults to 15, supports up to 100).
+     *
+     * @param array<string, int|string> $filters
+     * @return array{success: bool, countries?: array{data?: array<int, array<string, mixed>>}}
+     */
+    public function list(array $filters = []): array
     {
-        return $this->client->get('/country/lists');
+        return $this->client->get('/country/lists', $filters);
     }
 }
