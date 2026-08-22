@@ -26,25 +26,33 @@ $billingserv = new BillingServ('your-bearer-api-key');
 
 ### Configuration (.env)
 
-The SDK itself takes your key and base URL as constructor arguments. The bundled
-demo site (`demo/`) reads them from a `.env` file instead: copy `demo/.env.example`
-to `demo/.env` and fill in:
+The SDK takes your key and base URL as constructor arguments, so how you store
+them is up to you. Our examples load them from a `.env` file in your project:
 
-| Key | Required | Purpose |
-| --- | --- | --- |
-| `BILLINGSERV_API_KEY` | Yes | Your **merchant** bearer token from the API Information page. Powers packages, checkout, currencies, statuses and the account page's order/invoice lists |
-| `BILLINGSERV_BASE_URI` | Yes | Your install, e.g. `https://yourdomain.com/api/v2`. Defaults to the public demo server |
-| `APP_URL` | Recommended | Public URL of the demo folder, used as the checkout return address. Detected automatically if empty; set it explicitly behind proxies/CDNs |
-| `BILLINGSERV_WEBHOOK_SECRET` | For webhooks | Signing secret for `webhook.php`. Without it, webhook testing needs `?secret=` in the URL instead |
+```dotenv
+BILLINGSERV_API_KEY=your-merchant-bearer-token
+BILLINGSERV_BASE_URI=https://yourdomain.com/api/v2
+APP_URL=https://yourdomain.com
+BILLINGSERV_WEBHOOK_SECRET=your-webhook-signing-secret
+```
+
+| Key | Purpose |
+| --- | --- |
+| `BILLINGSERV_API_KEY` | Your **merchant** bearer token from the API Information page. Required |
+| `BILLINGSERV_BASE_URI` | Your BillingServ install, ending in `/api/v2`. Defaults to the public demo server when omitted from the constructor |
+| `APP_URL` | Public URL of your integration, used as the hosted checkout return address. Set it explicitly behind proxies or CDNs where host detection cannot be trusted |
+| `BILLINGSERV_WEBHOOK_SECRET` | Signing secret used to verify `BillingServ-Signature` headers on inbound webhooks |
 
 Notes:
 
-- The merchant key must have permission for the endpoints the site uses:
-  packages, package options, checkout, countries, counties, currencies,
-  order/invoice statuses and the order/invoice lists.
+- The merchant key must have permission for the endpoints you call: packages,
+  package options, checkout, countries, counties, currencies, order/invoice
+  statuses and the order/invoice lists.
 - Customers do **not** need an API key. They sign up or log in with their email
-  and password (`/customer/check`); their account page pulls their orders and
-  invoices through your merchant key, filtered to their customer ID.
+  and password (`/customer/check`); their orders and invoices are pulled through
+  your merchant key, filtered to their customer ID.
+- Never commit `.env` files; add them to `.gitignore`.
+
 
 
 ### Customers
