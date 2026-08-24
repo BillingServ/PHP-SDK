@@ -1,6 +1,7 @@
 # BillingServ PHP SDK
 
-The official PHP SDK for the [BillingServ v2 API](https://www.billingserv.com/docs/api-reference/introduction).
+The official PHP SDK for [BillingServ cloud billing and invoicing software](https://www.billingserv.com/)
+and its [v2 API](https://www.billingserv.com/docs/api-reference/introduction).
 It covers customers, invoices, quotes, orders, packages, hosted checkout, domain availability,
 usage metering, reports, settings, support tickets, the VPN module and software licensing. Full API
 documentation lives at [billingserv.com/docs/developers](https://www.billingserv.com/docs/developers).
